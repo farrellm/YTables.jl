@@ -1,3 +1,3 @@
-# YTable
+# YTables
 
-[![Build Status](https://travis-ci.org/farrellm/YTable.jl.png)](https://travis-ci.org/farrellm/YTable.jl)
+[![Build Status](https://travis-ci.org/farrellm/YTables.jl.png)](https://travis-ci.org/farrellm/YTables.jl)
