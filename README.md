@@ -4,6 +4,13 @@ Markup and markdown formatting for Julia DataFrames
 
 I am still very new to Julia, so interface is likely to change to be more idiomatic. Consequently, pull requests to make the interface more idiomatic would be appreciated!
 
+## How to get it
+YTables has not been registered yet; install with:
+
+```julia
+Pkg.clone("git@github.com:farrellm/YTables.jl.git")
+```
+
 ## Examples
 
 ```julia
@@ -49,13 +56,6 @@ org_table(form)
 | 0.7 | 0.626 |
 | 0.9 | 0.782 |
 
-```
-
-## How to get it
-YTables has not been registered yet; install with:
-
-```julia
-Pkg.clone("git@github.com:farrellm/YTables.jl.git")
 ```
 
 [![Build Status](https://travis-ci.org/farrellm/YTables.jl.png)](https://travis-ci.org/farrellm/YTables.jl)
