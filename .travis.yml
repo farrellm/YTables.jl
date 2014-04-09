@@ -9,5 +9,5 @@ before_install:
   - sudo apt-get update -qq -y
   - sudo apt-get install libpcre3-dev julia -y
 script:
-  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("YTable"))`); Pkg.pin("YTable"); Pkg.resolve()'
-  - julia -e 'using YTable; @assert isdefined(:YTable); @assert typeof(YTable) === Module'
+  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("YTables"))`); Pkg.pin("YTables"); Pkg.resolve()'
+  - julia -e 'using YTables; @assert isdefined(:YTables); @assert typeof(YTables) === Module'
