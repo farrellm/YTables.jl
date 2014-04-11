@@ -2,6 +2,8 @@ module YTables
 
 using DataFrames, Datetime
 
+export latex_table, org_table
+
 ## utility
 ($)(f::Function, g::Function) = x->f(g(x))
 
