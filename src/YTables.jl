@@ -14,9 +14,9 @@ abstract YStyle
 
 
 immutable LatexStyle <: YStyle
-    tabular::String
-    align::Dict{Symbol, ASCIIString}
-    format::Dict{Symbol, ASCIIString}
+    tabular
+    align
+    format
 end
 
 
@@ -38,26 +38,33 @@ type_align(_::String) = "l"
 make_align(data) = [n => type_align(data[1, n]) for n = names(data)]
 
 
-type_format(_::Integer) = "%d"
-type_format(_::Real) = "%.2f"
-type_format(_::String) = "%s"
+type_format(_::Integer) = v -> @sprintf("%d", v)
+type_format(_::Real)    = v -> @sprintf("%.2f", v)
+type_format(_::String)  = v -> @sprintf("%s", v)
 
 
-make_format(data) = [n => type_format(data[1, n]) for n = names(data)]
+make_format(data) = {n => type_format(data[1, n]) for n = names(data)}
+
+
+formatter(f::String) =   @eval v -> @sprintf($f, v)
+formatter(f::Function) = f
+
+
+formatters(fs) = {k => formatter(v) for (k, v) = fs}
 
 
 latex_table(data; tabular::String="tabular", alignment=Dict(), format=Dict()) =
     YTable(data, LatexStyle(tabular,
                             merge(make_align(data), alignment),
-                            merge(make_format(data), format)))
+                            merge(make_format(data), formatters(format))))
 
 
 org_table(data) = YTable(data, OrgStyle())
 
 
 ## printing
-function format_row(row::DataFrameRow{DataFrame}, format::Dict{Symbol, ASCIIString})
-    return map(n -> sprintf(format[n], row[n]), names(row))
+function format_row(row, format::Dict)
+    return map(n -> string(format[n](row[n])), names(row))
 end
 
 
@@ -74,14 +81,15 @@ function show_table(io::IO, data::DataFrame, style::LatexStyle)
     println(io, "    ", join(map(string, names(data)), " & "), " \\\\")
     println(io, "    \\hline")
 
-    println(io, "    ",
-            join(map(row -> join(format_row(row, style.format), " & "),
-                     eachrow(data)),
-                 " \\\\ \n    "), " \\\\")
+    for row = eachrow(data)
+        println(io, "    ",
+                join(format_row(row, style.format), " & "),
+                " \\\\")
+    end
 
     println(io, "    \\hline")
     println(io, "  \\end{tabular}")
-    println(io, "\\end{table}")
+    print(io, "\\end{table}")
 end
 
 
