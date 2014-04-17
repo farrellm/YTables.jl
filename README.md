@@ -12,14 +12,11 @@ Pkg.clone("git@github.com:farrellm/YTables.jl.git")
 ```
 
 ## Examples
-
+### From Julia
 ```julia
 using YTables, RDatasets
-form = dataset("datasets","Formaldehyde")
-```
-
-```julia
-latex_table(form)
+form =  RDatasets.dataset("datasets","Formaldehyde")
+YTables.latex(form)
 ```
 
 ```latex
@@ -42,20 +39,52 @@ latex_table(form)
 \end{table}
 ```
 
-```latex
-org_table(form)
-```
+### From Babel
+```julia
+#+BEGIN_SRC julia :exports both :results raw
+  import RDatasets, YTables
+  form = RDatasets.dataset("datasets","Formaldehyde");
+  YTables.org(form)
+#+END_SRC
 
-```
+#+RESULTS:
 | Carb | OptDen |
-|--+--|
-| 0.1 | 0.086 |
-| 0.3 | 0.269 |
-| 0.5 | 0.446 |
-| 0.6 | 0.538 |
-| 0.7 | 0.626 |
-| 0.9 | 0.782 |
+|------+--------|
+|  0.1 |  0.086 |
+|  0.3 |  0.269 |
+|  0.5 |  0.446 |
+|  0.6 |  0.538 |
+|  0.7 |  0.626 |
+|  0.9 |  0.782 |
+```
 
+```julia
+#+BEGIN_SRC julia :exports both :results latex verbatim
+  import RDatasets, YTables
+  form = RDatasets.dataset("datasets","Formaldehyde");
+  YTables.latex(form)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_LaTeX
+% latex table generated in Julia 0.3.0-prerelease+2640 by YTables
+% 2014-04-17T04:41:43 UTC
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{rr}
+    \hline
+    Carb & OptDen \\
+    \hline
+    0.10 & 0.09 \\
+    0.30 & 0.27 \\
+    0.50 & 0.45 \\
+    0.60 & 0.54 \\
+    0.70 & 0.63 \\
+    0.90 & 0.78 \\
+    \hline
+  \end{tabular}
+\end{table}
+#+END_LaTeX
 ```
 
 [![Build Status](https://travis-ci.org/farrellm/YTables.jl.png)](https://travis-ci.org/farrellm/YTables.jl)
