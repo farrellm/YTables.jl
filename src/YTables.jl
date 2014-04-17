@@ -70,6 +70,13 @@ function format_row(row, format::Dict)
 end
 
 
+function show_rows(io, data, format, pre, sep, post)
+    for r = eachrow(data)
+        println(io, pre, join(format_row(r, format), sep), post)
+    end
+end
+
+
 function show_table(io::IO, data::DataFrame, style::LatexStyle)
     println(io, string("% latex table generated in Julia ",
                        VERSION, " by YTables"))
@@ -78,17 +85,11 @@ function show_table(io::IO, data::DataFrame, style::LatexStyle)
     println(io, "\\begin{table}[ht]")
     println(io, "  \\centering")
     println(io, "  \\begin{", style.tabular, "}{",
-            join(map(n->style.align[n], names(data)), ""), "}")
+            apply(string, map(n->style.align[n], names(data))), "}")
     println(io, "    \\hline")
     println(io, "    ", join(map(string, names(data)), " & "), " \\\\")
     println(io, "    \\hline")
-
-    for row = eachrow(data)
-        println(io, "    ",
-                join(format_row(row, style.format), " & "),
-                " \\\\")
-    end
-
+    show_rows(io, data, style.format, "    ", " & ", " \\\\")
     println(io, "    \\hline")
     println(io, "  \\end{tabular}")
     print(io, "\\end{table}")
@@ -96,12 +97,13 @@ end
 
 
 function show_table(io::IO, data::DataFrame, style::OrgStyle)
-    ns = names(data)
-    println(io, "| ", join(map(string, ns), " | "), " |")
-    println(io, "|-", repeat("-+-", length(ns) - 1), "-|")
-    for r = eachrow(data)
-        println(io, "| ", join(map(n->r[n], ns), " | "), " |")
-    end
+    valwidths = map(c->mapreduce(length $ string, max, c), eachcol(data))
+    widths = {n=>max(length(string(n)), vs[1]) for (n,vs) = eachcol(valwidths)}
+    format = {n=>formatter("%$v\s") for (n,v) = widths}
+    ns = DataFrame({n=>[string(n)] for n in names(data)}, names(data))
+    show_rows(io, ns, format, "| ", " | ", " |")
+    println(io, "|-", join([repeat("-", widths[n]) for n = names(data)], "-+-"), "-|")
+    show_rows(io, data, format, "| ", " | ", " |")
 end
 
 
