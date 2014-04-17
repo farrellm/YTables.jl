@@ -15,8 +15,8 @@ Pkg.clone("git@github.com:farrellm/YTables.jl.git")
 ### From Julia
 ```julia
 using YTables, RDatasets
-form =  RDatasets.dataset("datasets","Formaldehyde")
-YTables.latex(form)
+form = dataset("datasets","Formaldehyde")
+latex(form)
 ```
 
 ```latex
@@ -42,9 +42,9 @@ YTables.latex(form)
 ### From Babel
 ```julia
 #+BEGIN_SRC julia :exports both :results raw
-  import RDatasets, YTables
-  form = RDatasets.dataset("datasets","Formaldehyde");
-  YTables.org(form)
+  using RDatasets, YTables
+  form = dataset("datasets","Formaldehyde")
+  org(form)
 #+END_SRC
 
 #+RESULTS:
@@ -60,9 +60,9 @@ YTables.latex(form)
 
 ```julia
 #+BEGIN_SRC julia :exports both :results latex verbatim
-  import RDatasets, YTables
-  form = RDatasets.dataset("datasets","Formaldehyde");
-  YTables.latex(form)
+  using RDatasets, YTables
+  form = dataset("datasets","Formaldehyde")
+  latex(form)
 #+END_SRC
 
 #+RESULTS:
