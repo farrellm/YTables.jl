@@ -1,14 +1,10 @@
 module YTables
-
 using DataFrames, Datetime
 
 export latex, org
 
 ## utility
 ($)(f::Function, g::Function) = x->f(g(x))
-
-
-sprintf(fmt, val) = @eval @sprintf($fmt, $val)
 
 
 ## types
@@ -110,6 +106,13 @@ end
 import Base.show
 function show(io::IO, t::YTable)
     show_table(io, t.data, t.style)
+end
+
+import Base.writecsv
+function writecsv(filename, a::YTable; opts...)
+    io = open(filename, "w")
+    show(io, a)
+    close(io)
 end
 
 end # module
