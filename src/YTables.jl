@@ -2,7 +2,7 @@ module YTables
 
 using DataFrames, Datetime
 
-export latex_table, org_table
+export latex, org
 
 ## utility
 ($)(f::Function, g::Function) = x->f(g(x))
@@ -55,13 +55,13 @@ formatter(f::Function) = f
 formatters(fs) = {k => formatter(v) for (k, v) = fs}
 
 
-latex_table(data; tabular::String="tabular", alignment=Dict(), format=Dict()) =
+latex(data; tabular::String="tabular", alignment=Dict(), format=Dict()) =
     YTable(data, LatexStyle(tabular,
                             merge(make_align(data), alignment),
                             merge(make_format(data), formatters(format))))
 
 
-org_table(data) = YTable(data, OrgStyle())
+org(data) = YTable(data, OrgStyle())
 
 
 ## printing
