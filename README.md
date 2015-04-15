@@ -8,7 +8,7 @@ I am still very new to Julia, so interface is likely to change to be more idioma
 YTables has not been registered yet; install with:
 
 ```julia
-Pkg.clone("git@github.com:farrellm/YTables.jl.git")
+Pkg.clone("https://github.com/farrellm/YTables.jl.git")
 ```
 
 ## Examples
