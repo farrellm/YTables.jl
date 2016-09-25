@@ -1,5 +1,5 @@
 module YTables
-using DataFrames, Datetime
+using DataFrames
 
 export latex, org
 
@@ -96,7 +96,7 @@ function show_table(io::IO, data::DataFrame, style::OrgStyle)
     valwidths = map(c->mapreduce(length $ string, max, c), eachcol(data))
     widths = {n=>max(length(string(n)), vs[1]) for (n,vs) = eachcol(valwidths)}
     format = {n=>formatter("%$v\s") for (n,v) = widths}
-    ns = DataFrame({n=>[string(n)] for n in names(data)}, names(data))
+    ns = DataFrame(convert(Array{Any, 1}, [[n] for n in names(data)]), names(data))
     show_rows(io, ns, format, "| ", " | ", " |")
     println(io, "|-", join([repeat("-", widths[n]) for n = names(data)], "-+-"), "-|")
     show_rows(io, data, format, "| ", " | ", " |")
