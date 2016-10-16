@@ -12,9 +12,9 @@ abstract YStyle
 
 
 immutable LatexStyle <: YStyle
-    tabular
-    align
-    format
+    tabular::String
+    align::Dict{Symbol, String}
+    format::Dict{Symbol, Function}
 end
 
 
@@ -33,7 +33,8 @@ type_align(_::Number) = "r"
 type_align(_::String) = "l"
 
 
-make_align(data) = [n => type_align(data[1, n]) for n = names(data)]
+make_align(data) =
+    Dict(n => type_align(data[1, n]) for n = names(data))
 
 
 type_format(_::Integer) = v -> @sprintf("%d", v)
@@ -41,30 +42,30 @@ type_format(_::Real)    = v -> @sprintf("%.2f", v)
 type_format(_::String)  = v -> @sprintf("%s", v)
 
 
-make_format(data) = {n => type_format(data[1, n]) for n = names(data)}
+make_format(data) =
+    Dict(n => type_format(data[1, n]) for n in names(data))
 
 
 formatter(f::String) =   @eval v -> @sprintf($f, v)
 formatter(f::Function) = f
 
 
-formatters(fs) = {k => formatter(v) for (k, v) = fs}
+formatters(fs) =
+    [formatter(v) for (k, v) = fs]
 
 
 latex(data; tabular::String="tabular", alignment=Dict(), format=Dict()) =
     YTable(data, LatexStyle(tabular,
                             merge(make_align(data), alignment),
-                            merge(make_format(data), formatters(format))))
+                            merge(make_format(data), format)))
 
 
 org(data) = YTable(data, OrgStyle())
 
 
 ## printing
-function format_row(row, format::Dict)
-    return map(n -> string(format[n](row[n])), names(row))
-end
-
+format_row(row, format::Dict{Symbol, Function}) =
+    [string(format[n](row[n])) for n in names(row)]
 
 function show_rows(io, data, format, pre, sep, post)
     for r = eachrow(data)
@@ -80,8 +81,8 @@ function show_table(io::IO, data::DataFrame, style::LatexStyle)
 
     println(io, "\\begin{table}[ht]")
     println(io, "  \\centering")
-    println(io, "  \\begin{", style.tabular, "}{",
-            apply(string, map(n->style.align[n], names(data))), "}")
+    as = [style.align[n] for n in names(data)]
+    println(io, "  \\begin{", style.tabular, "}{", join(as), "}")
     println(io, "    \\hline")
     println(io, "    ", join(map(string, names(data)), " & "), " \\\\")
     println(io, "    \\hline")
@@ -94,8 +95,8 @@ end
 
 function show_table(io::IO, data::DataFrame, style::OrgStyle)
     valwidths = map(c->mapreduce(length $ string, max, c), eachcol(data))
-    widths = {n=>max(length(string(n)), vs[1]) for (n,vs) = eachcol(valwidths)}
-    format = {n=>formatter("%$v\s") for (n,v) = widths}
+    widths = Dict(n => max(length(string(n)), vs[1]) for (n,vs) = eachcol(valwidths))
+    format = Dict(n => formatter("%$v\s") for (n,v) = widths)
     ns = DataFrame(convert(Array{Any, 1}, [[n] for n in names(data)]), names(data))
     show_rows(io, ns, format, "| ", " | ", " |")
     println(io, "|-", join([repeat("-", widths[n]) for n = names(data)], "-+-"), "-|")
