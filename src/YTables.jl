@@ -12,6 +12,7 @@ abstract YStyle
 
 
 immutable LatexStyle <: YStyle
+    embed_in_table::Bool
     tabular::String
     align::Dict{Symbol, String}
     format::Dict{Symbol, Function}
@@ -54,8 +55,9 @@ formatters(fs) =
     [formatter(v) for (k, v) = fs]
 
 
-latex(data; tabular::String="tabular", alignment=Dict(), format=Dict()) =
-    YTable(data, LatexStyle(tabular,
+latex(data; embed_in_table::Bool=true, tabular::String="tabular", alignment=Dict(), format=Dict()) =
+    YTable(data, LatexStyle(embed_in_table,
+                            tabular,
                             merge(make_align(data), alignment),
                             merge(make_format(data), format)))
 
@@ -79,8 +81,10 @@ function show_table(io::IO, data::DataFrame, style::LatexStyle)
                        VERSION, " by YTables"))
     println(io, string("% ", now()))
 
-    println(io, "\\begin{table}[ht]")
-    println(io, "  \\centering")
+    if style.embed_in_table
+        println(io, "\\begin{table}[ht]")
+        println(io, "  \\centering")
+    end
     as = [style.align[n] for n in names(data)]
     println(io, "  \\begin{", style.tabular, "}{", join(as), "}")
     println(io, "    \\hline")
@@ -89,7 +93,9 @@ function show_table(io::IO, data::DataFrame, style::LatexStyle)
     show_rows(io, data, style.format, "    ", " & ", " \\\\")
     println(io, "    \\hline")
     println(io, "  \\end{tabular}")
-    print(io, "\\end{table}")
+    if style.embed_in_table
+        print(io, "\\end{table}")
+    end
 end
 
 
