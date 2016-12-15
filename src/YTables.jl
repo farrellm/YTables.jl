@@ -32,9 +32,6 @@ end
 
 
 ## constructors
-#type_align(_::Number) = "r"
-#type_align(_::String) = "l"
-
 type_align{T<:Number}(_::DataArrays.DataArray{T,1}) = "r"
 type_align{T<:String}(_::DataArrays.DataArray{T,1}) = "l"
 
@@ -58,12 +55,42 @@ formatters(fs) =
     [formatter(v) for (k, v) = fs]
 
 
-latex(data; embed_in_table::Bool=true, tabular::String="tabular",na::String="-",alignment=Dict(), format=Dict()) =
+const latex_escape_characters = Dict{String,String}(
+    "_" => "\\_",
+    "&" => "\\&",
+    "%" => "\\%",
+    "\\" => "\\\$",
+    "#" => "\\#",
+    "{" => "\\{",
+    "}" => "\\}",
+    "~" => "\\textasciitilde",
+    "^" => "\\textasciicircum",
+    "\\" => "\\textasciibackslash")
+
+
+latex_escape(str::String) = join(map(c->(try latex_escape_characters[c] catch string(c) end),split(str,"")))
+no_escape(str::String) = str
+
+
+#latex(data; embed_in_table::Bool=true, tabular::String="tabular",na::String="-",alignment=Dict(), format=Dict()) =
+#    YTable(data, LatexStyle(na,
+#                            embed_in_table,
+#                            tabular,
+#                            merge(alignment,make_align(data)),
+#                            merge(format,make_format(data))))
+function latex(data; embed_in_table::Bool=true, tabular::String="tabular",na::String="-",escape::Bool=true,alignment=Dict(), format=Dict())
+
+    if escape
+        deriv_format = Dict(key=>v->latex_escape(value(v)) for (key,value) in make_format(data))
+    else
+	deriv_format = make_format(data)
+    end
+
     YTable(data, LatexStyle(na,
                             embed_in_table,
                             tabular,
-                            merge(make_align(data), alignment),
-                            merge(make_format(data), format)))
+                            merge(alignment,make_align(data)),merge(format,deriv_format)))
+end
 
 
 org(data ; na::String="NA") = YTable(data, OrgStyle(na))
@@ -96,12 +123,11 @@ function show_table(io::IO, data::DataFrame, style::LatexStyle)
     println(io, "    \\hline")
     show_rows(io, data, style.format, style.na, "    ", " & ", " \\\\")
     println(io, "    \\hline")
-    println(io, "  \\end{tabular}")
+    println(io, "  \\end{$(style.tabular)}")
     if style.embed_in_table
         print(io, "\\end{table}")
     end
 end
-
 
 function show_table(io::IO, data::DataFrame, style::OrgStyle)
     valwidths = map(c->mapreduce(length $ string, max, c), eachcol(data))
