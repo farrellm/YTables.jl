@@ -1,13 +1,20 @@
-language: cpp
-compiler:
-  - clang
+# Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - release
+  - nightly
 notifications:
   email: false
-before_install:
-  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
-  - sudo add-apt-repository ppa:staticfloat/julianightlies -y
-  - sudo apt-get update -qq -y
-  - sudo apt-get install libpcre3-dev julia -y
-script:
-  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("YTables"))`); Pkg.pin("YTables"); Pkg.resolve()'
-  - julia -e 'using YTables; @assert isdefined(:YTables); @assert typeof(YTables) === Module'
+# uncomment the following lines to override the default test script
+#script:
+#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+#  - julia -e 'Pkg.clone(pwd()); Pkg.build("YTables"); Pkg.test("ImputationQualityScores"; coverage=true)'
+after_success:
+  # push coverage results to Coveralls
+  - julia -e 'cd(Pkg.dir("YTables")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  # push coverage results to Codecov
+  - julia -e 'cd(Pkg.dir("YTables")); Pkg.add("YTables"); using Coverage; Codecov.submit(Codecov.process_folder())'
+
