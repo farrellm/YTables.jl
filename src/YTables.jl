@@ -69,15 +69,7 @@ const latex_escape_characters = Dict{String,String}(
 
 
 latex_escape(str::String) = join(map(c->(try latex_escape_characters[c] catch string(c) end),split(str,"")))
-no_escape(str::String) = str
 
-
-#latex(data; embed_in_table::Bool=true, tabular::String="tabular",na::String="-",alignment=Dict(), format=Dict()) =
-#    YTable(data, LatexStyle(na,
-#                            embed_in_table,
-#                            tabular,
-#                            merge(alignment,make_align(data)),
-#                            merge(format,make_format(data))))
 function latex(data; embed_in_table::Bool=true, tabular::String="tabular",na::String="-",escape::Bool=true,alignment=Dict(), format=Dict())
 
     if escape
