@@ -81,7 +81,7 @@ function latex(data; embed_in_table::Bool=true, tabular::String="tabular",na::St
     YTable(data, LatexStyle(na,
                             embed_in_table,
                             tabular,
-                            merge(alignment,make_align(data)),merge(format,deriv_format)))
+                            merge(make_align(data), alignment),merge(deriv_format,format)))
 end
 
 
