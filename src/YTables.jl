@@ -63,17 +63,30 @@ const latex_escape_characters = Dict{String,String}(
     "#" => "\\#",
     "{" => "\\{",
     "}" => "\\}",
+    ">" => "\\textgreater",
+    "<" => "\\textless",
     "~" => "\\textasciitilde",
     "^" => "\\textasciicircum",
     "\\" => "\\textasciibackslash")
 
 
 latex_escape(str::String) = join(map(c->(try latex_escape_characters[c] catch string(c) end),split(str,"")))
+latex_escape(sym::Symbol) = Symbol(latex_escape(string(sym)))
+
 
 function latex(data; embed_in_table::Bool=true, tabular::String="tabular",na::String="-",escape::Bool=true,alignment=Dict(), format=Dict())
 
     if escape
+	# Make copy of data frame so we can change names
+	data=copy(data)
+	for(name in names(data))
+		escname=latex_escape(name)
+		if name != escname 
+			rename!(data,name,escname)
+		end
+	end
         deriv_format = Dict(key=>v->latex_escape(value(v)) for (key,value) in make_format(data))
+	
     else
 	deriv_format = make_format(data)
     end
